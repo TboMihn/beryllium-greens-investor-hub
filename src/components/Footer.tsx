@@ -1,23 +1,6 @@
-import { useEffect, useState } from "react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
-  const [visitors, setVisitors] = useState(0);
-
-  useEffect(() => {
-    // localStorage-based counter (will be replaced with DB when Cloud is enabled)
-    const key = "bg_visitor_count";
-    const sessionKey = "bg_visited";
-    const count = parseInt(localStorage.getItem(key) || "0", 10);
-    if (!sessionStorage.getItem(sessionKey)) {
-      const newCount = count + 1;
-      localStorage.setItem(key, String(newCount));
-      sessionStorage.setItem(sessionKey, "1");
-      setVisitors(newCount);
-    } else {
-      setVisitors(count);
-    }
-  }, []);
 
   return (
     <footer className="bg-foreground text-primary-foreground">
@@ -49,10 +32,6 @@ const Footer = () => {
           </div>
 
           <div className="text-right md:text-right">
-            <p className="font-body text-xs text-primary-foreground/50 mb-1">Site Visitors</p>
-            <p className="font-display text-3xl font-bold text-accent">
-              {visitors.toLocaleString()}
-            </p>
             <p className="font-body text-xs text-primary-foreground/40 mt-4">
               © {new Date().getFullYear()} Beryllium Greens. All rights reserved.
             </p>

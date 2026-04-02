@@ -37,11 +37,20 @@ export const submitContactForm = async (input: ContactSubmissionInput) => {
     status: "new",
   };
 
-  const { error } = await supabase.from("contact_submissions").insert(payload);
+  const { data, error } = await supabase
+    .from("contact_submissions")
+    .insert(payload)
+    .select()
+    .single();
 
   if (error) {
     throw error;
   }
+
+  // Fire email notification — non-blocking, don't fail the submission if it errors
+  supabase.functions
+    .invoke("send-contact-email", { body: data })
+    .catch((err) => console.error("Email notification failed:", err));
 
   return true;
 };

@@ -1,10 +1,6 @@
 import { useState, FormEvent } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import SectionWrapper from "./SectionWrapper";
-import { toast } from "sonner";
-import { submitContactForm } from "@/lib/contact";
-import { contactSchema } from "@/lib/contact-schema";
-import { isSupabaseConfigured } from "@/integrations/supabase/client";
 
 const initialFormState = {
 	name: "",
@@ -16,47 +12,19 @@ const initialFormState = {
 
 const ContactSection = () => {
 	const [form, setForm] = useState(initialFormState);
-	const [sending, setSending] = useState(false);
 
-	const handleSubmit = async (e: FormEvent) => {
+	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 
-		const validation = contactSchema.safeParse(form);
-		if (!validation.success) {
-			toast.error(
-				validation.error.issues[0]?.message ||
-					"Please fill in all required fields.",
-			);
-			return;
-		}
+		const subject = encodeURIComponent(
+			`Beryllium Greens Inquiry${form.interest ? ` — ${form.interest}` : ""}`,
+		);
 
-		setSending(true);
+		const body = encodeURIComponent(
+			`Name: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone || "—"}\nInterest: ${form.interest || "—"}\n\nMessage:\n${form.message}`,
+		);
 
-		try {
-			await submitContactForm({
-				...validation.data,
-				phone: validation.data.phone || null,
-				interest: validation.data.interest || null,
-				sourcePath: window.location.pathname,
-			});
-
-			toast.success("Your message has been sent. We will be in touch soon.");
-			setForm(initialFormState);
-		} catch (error) {
-			console.error("Contact form submission failed", error);
-
-			if (!isSupabaseConfigured) {
-				toast.error(
-					"Supabase is not configured yet. Add your environment variables to enable form submissions.",
-				);
-			} else {
-				toast.error(
-					"We could not send your message right now. Please try again shortly.",
-				);
-			}
-		} finally {
-			setSending(false);
-		}
+		window.location.href = `mailto:info@berylliumgreens.com?subject=${subject}&body=${body}`;
 	};
 
 	return (
@@ -82,9 +50,7 @@ const ContactSection = () => {
 							<Mail size={18} />
 						</div>
 						<div>
-							<p className="font-body text-sm font-semibold text-foreground">
-								Email
-							</p>
+							<p className="font-body text-sm font-semibold text-foreground">Email</p>
 							<a
 								href="mailto:info@berylliumgreens.com"
 								className="font-body text-sm text-primary hover:underline"
@@ -98,12 +64,8 @@ const ContactSection = () => {
 							<MapPin size={18} />
 						</div>
 						<div>
-							<p className="font-body text-sm font-semibold text-foreground">
-								Location
-							</p>
-							<p className="font-body text-sm text-muted-foreground">
-								Near Prescott, Arizona
-							</p>
+							<p className="font-body text-sm font-semibold text-foreground">Location</p>
+							<p className="font-body text-sm text-muted-foreground">Near Prescott, Arizona</p>
 						</div>
 					</div>
 					<div className="flex gap-4 items-start">
@@ -111,9 +73,7 @@ const ContactSection = () => {
 							<Phone size={18} />
 						</div>
 						<div>
-							<p className="font-body text-sm font-semibold text-foreground">
-								By Appointment
-							</p>
+							<p className="font-body text-sm font-semibold text-foreground">By Appointment</p>
 							<p className="font-body text-sm text-muted-foreground">
 								Reach out via the form to schedule a call.
 							</p>
@@ -199,18 +159,10 @@ const ContactSection = () => {
 					</div>
 					<button
 						type="submit"
-						disabled={sending}
-						className="w-full bg-gradient-green text-primary-foreground py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-60"
+						className="w-full bg-gradient-green text-primary-foreground py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
 					>
-						{sending ? "Sending..." : "Send Message"}
+						Send Message
 					</button>
-
-					{!isSupabaseConfigured && (
-						<p className="font-body text-xs text-muted-foreground">
-							Form storage is ready, but Supabase environment variables still
-							need to be added before submissions can be saved.
-						</p>
-					)}
 				</form>
 			</div>
 		</SectionWrapper>
