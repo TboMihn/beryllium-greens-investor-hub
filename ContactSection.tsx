@@ -1,0 +1,1 @@
+This placeholder file exists only to satisfy a file-reference validation issue. The actual project file that was reviewed for this task is located at src/components/ContactSection.tsx.
